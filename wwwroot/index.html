@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title></title>
+    <script src="dat.gui.min.js"></script>
+</head>
+<body>
+    <p style="margin: 2em;"></p>
+    <button id="cpy" style="width:6em;height:6em;margin: 1em;">Copy to PC</button>
+    <button id="pst" style="width:6em;height:6em;margin: 1em;">Paste from PC</button>
+    <p></p>
+    <textarea id="txt" rows="20" cols="40"></textarea>
+    <script>
+        function show(msg) {
+            let gui = new dat.GUI({ closeOnTop: true, closed: false });
+            gui.addFolder(msg);
+            setTimeout(() => gui.destroy(), 2000);
+        }
+
+        async function postData(url = '', data = '') {
+            console.log(JSON.stringify(data));
+            // Default options are marked with *
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                    //'Content-Type': 'text/plain, charset=UTF-8'
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: data // body data type must match "Content-Type" header
+                //body: encodeURIComponent(data)
+            });
+            return response.text(); // parses JSON response into native JavaScript objects
+        }
+
+        var txt = document.getElementById("txt");
+        //txt.addEventListener("paste", e => {
+        //    var d = e.clipboardData.getData("Text");
+        //    postData('/api/copy', d)
+        //        .then(data => {
+        //            console.log(`copy ${data}`);
+        //        });
+        //});
+
+        var pst = document.getElementById("pst");
+        pst.addEventListener("click", e => {
+            txt.value = "";
+            postData('/api/paste')
+                .then(data => {
+                    console.log(`paste ${data}`);
+                    txt.value = data;
+                    txt.select();
+                    show("Paste from PC OK!");
+                });
+        });
+
+        var cpy = document.getElementById("cpy");
+        cpy.addEventListener("click", e => {
+            d = txt.value;
+            postData('/api/copy', d).then(data => {
+                console.log(`copy ${data}`);
+                show("Copy to PC OK!");
+            });
+        });
+
+    </script>
+</body>
+</html>
