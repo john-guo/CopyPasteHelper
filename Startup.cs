@@ -10,6 +10,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using Newtonsoft.Json;
+using System.Drawing;
+using System.Text.RegularExpressions;
+using System.IO;
+using Microsoft.AspNetCore.Http.Features;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 
 namespace WpfApp1
 {
@@ -19,8 +26,14 @@ namespace WpfApp1
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<MainWindow>();
+            services.Configure<FormOptions>(options =>
+            {
+                // Set the limit to 500 MB
+                options.MultipartBodyLengthLimit = 524288000;
+            });
 
+            services.AddSingleton<MainWindow>();
+            //services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -33,24 +46,64 @@ namespace WpfApp1
 
             app.UseStaticFiles();
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
+                //endpoints.MapControllers();
                 endpoints.MapPost("/api/copy", Copy);
+                endpoints.MapPost("/api/copy2", Copy2);
                 endpoints.MapPost("/api/paste", Paste);
             });
         }
 
-        private Task<T> STTask<T>(Func<T> func)
+        internal static Task<T> STTask<T>(Func<T> func)
         {
             var dispatcher = Application.Current.Dispatcher;
             return dispatcher.InvokeAsync(func, DispatcherPriority.Normal).Task;
         }
 
-        private void RunAction(Action action)
+        internal static void RunAction(Action action)
         {
             var dispatcher = Application.Current.Dispatcher;
             dispatcher.BeginInvoke(action);
+        }
+
+        public class RequestParameter
+        {
+            [JsonProperty("type")]
+            public int Type { get; set; }
+
+            [JsonProperty("data")]
+            public string Data { get; set; }
+
+            private static Regex regex = new Regex(@"data:(?<mime>[\w/\-\.]+);(?<encoding>\w+),(?<data>.*)", RegexOptions.Compiled);
+            public Bitmap GetImage()
+            {
+                if (Type == 0)
+                    return null;
+
+                var match = regex.Match(Data);
+
+                var mime = match.Groups["mime"].Value;
+                var encoding = match.Groups["encoding"].Value;
+                var data = match.Groups["data"].Value;
+
+                using (var stream = new MemoryStream(Convert.FromBase64String(data)))
+                {
+                    return new Bitmap(stream);
+                }
+            }
+
+            public void PutImage(InteropBitmap image)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(stream);
+                    var data = stream.ToArray();
+                    Data = $"data:image/png;base64,{Convert.ToBase64String(data)}";
+                }
+            }
         }
 
         private async Task Copy(HttpContext context)
@@ -58,37 +111,88 @@ namespace WpfApp1
             byte[] buffer = new byte[context.Request.ContentLength.Value];
             await context.Request.Body.ReadAsync(buffer, 0, buffer.Length);
             var data = Encoding.UTF8.GetString(buffer);
+            var parameters = JsonConvert.DeserializeObject<RequestParameter>(data);
+
             await STTask(() =>
             {
-                Clipboard.SetData(DataFormats.Text, data);
+                var result = "";
+                switch (parameters.Type)
+                {
+                    case 0://text
+                        Clipboard.SetData(DataFormats.Text, parameters.Data);
+                        result = "Text";
+                        break;
+                    case 1://image
+                        
+                        using (var image = parameters.GetImage())
+                        {
+                            Clipboard.SetData(DataFormats.Bitmap, image);
+                        }
+                        result = "Image";
+                        break;
+                }
+
 
                 RunAction(async () =>
                 {
-                    await (Application.Current.MainWindow as MainWindow).Show("Copy to PC OK!");
+                    await (Application.Current.MainWindow as MainWindow).Show($"{result} Copy To PC OK!");
                 });
 
                 return data;
             });
         }
 
+        private async Task Copy2(HttpContext context)
+        {
+            var form = await context.Request.ReadFormAsync();
+            var file = form.Files[0];
+            var image = new Bitmap(file.OpenReadStream());
+
+            await STTask(() =>
+            {
+                Clipboard.SetData(DataFormats.Bitmap, image);
+
+                RunAction(async () =>
+                {
+                    await (Application.Current.MainWindow as MainWindow).Show("Image Copy To PC OK!");
+                });
+
+                image.Dispose();
+                return 0;
+            });
+        }
+
+
         private async Task Paste(HttpContext context)
         {
             var data = await STTask(() =>
             {
-                var str = string.Empty;
+                RequestParameter parameter = new RequestParameter();
                 IDataObject ido = Clipboard.GetDataObject();
-                if (ido.GetDataPresent(DataFormats.Text))
-                    str = (string)ido.GetData(DataFormats.Text);
+
+                string result = "";
+                if (ido.GetDataPresent(DataFormats.Bitmap))
+                {
+                    result = "Image";
+                    parameter.Type = 1;
+                    parameter.PutImage((InteropBitmap)ido.GetData(DataFormats.Bitmap));
+                }
+                else if (ido.GetDataPresent(DataFormats.Text))
+                {
+                    result = "Text";
+                    parameter.Type = 0;
+                    parameter.Data = (string)ido.GetData(DataFormats.Text);
+                }
 
                 RunAction(async () =>
                 {
-                    await (Application.Current.MainWindow as MainWindow).Show("Paste from PC OK!");
+                    await (Application.Current.MainWindow as MainWindow).Show($"{result} Paste From PC OK!");
                 });
 
-                return str;
+                return parameter;
             });
 
-            byte[] buffer = Encoding.UTF8.GetBytes(data);
+            byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
             context.Response.ContentLength = buffer.Length;
             context.Response.ContentType = "application/json";
             await context.Response.Body.WriteAsync(buffer, 0, buffer.Length);

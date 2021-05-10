@@ -27,6 +27,13 @@ namespace WpfApp1
             _host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureKestrel((context, options) =>
+                    {
+                        // Handle requests up to 500 MB
+                        options.Limits.MaxRequestBodySize = 524288000;
+                    });
+                    webBuilder.UseKestrel();
+
                     var addrs = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
                     Address = addrs[0];
                     webBuilder.UseUrls(addrs);
