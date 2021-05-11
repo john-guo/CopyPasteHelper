@@ -5,13 +5,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title></title>
     <script src="dat.gui.min.js"></script>
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="jquery.form.min.js"></script>
 </head>
 <body>
     <p style="margin: 2em;"></p>
     <button id="cpy" style="width:6em;height:6em;margin: 1em;">Copy to PC</button>
     <button id="pst" style="width:6em;height:6em;margin: 1em;">Paste from PC</button>
-    <p></p>
     <textarea id="txt" rows="20" cols="40"></textarea>
+
+    <form id="form" action="/api/copy2" enctype="multipart/form-data" method="post">
+        <p>
+            <input name="file" type="file" id="file" accept="image/*" />
+            <img src="" alt="Image preview..." style="width:auto;height:auto">
+        </p>
+    </form>
     <script>
         function show(msg) {
             let gui = new dat.GUI({ closeOnTop: true, closed: false });
@@ -47,28 +55,60 @@
         //            console.log(`copy ${data}`);
         //        });
         //});
+        var preview = document.querySelector('img');
 
         var pst = document.getElementById("pst");
         pst.addEventListener("click", e => {
             txt.value = "";
+            preview.src = "";
             postData('/api/paste')
                 .then(data => {
                     console.log(`paste ${data}`);
-                    txt.value = data;
-                    txt.select();
+                    var d = JSON.parse(data);
+                    switch (d.type) {
+                        case 0://text
+                            txt.value = d.data;
+                            txt.select();
+                            break;
+                        case 1://image
+                            preview.src = d.data
+                            break;
+                    }
                     show("Paste from PC OK!");
                 });
         });
 
         var cpy = document.getElementById("cpy");
         cpy.addEventListener("click", e => {
-            d = txt.value;
+            //d = txt.value;
+            var d = JSON.stringify({ type: 0, data: txt.value });
             postData('/api/copy', d).then(data => {
                 console.log(`copy ${data}`);
                 show("Copy to PC OK!");
             });
         });
 
+        var file = document.getElementById("file");
+        file.addEventListener("change", e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+
+                //postData('/api/copy', JSON.stringify({ type: 1, data: event.target.result })).then(data => {
+                //    console.log(`copy ${data}`);
+                //    show("Copy to PC OK!");
+                //});
+
+                $('form').ajaxSubmit(data => {
+                    console.log(`copy ${data}`);
+                    show("Copy to PC OK!");
+                });
+            }
+            reader.readAsDataURL(file);
+        });
+
+        //$('form').ajaxForm();
     </script>
 </body>
 </html>
