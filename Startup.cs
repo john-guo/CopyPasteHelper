@@ -23,10 +23,14 @@ namespace WpfApp1
 {
     public class Startup
     {
-        private readonly string UploadPath;
-        public Startup()
+        public static readonly string UploadPath;
+        static Startup()
         {
             UploadPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\files");
+            if (!Directory.Exists(UploadPath))
+            {
+                Directory.CreateDirectory(UploadPath);
+            }
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

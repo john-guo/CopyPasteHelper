@@ -12,6 +12,9 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         Icon="copy.ico"
         >
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static ApplicationCommands.Help}" Executed="CommandBinding_Executed"/>
+    </Window.CommandBindings>
     <Grid>
         <tb:TaskbarIcon x:Name="myNotifyIcon"
                     ToolTipText="Copy Paste Helper"
@@ -25,6 +28,10 @@
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
-        <Image x:Name="img"></Image>
+        <Image x:Name="img">
+            <Image.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" Command="{x:Static ApplicationCommands.Help}"  />
+            </Image.InputBindings>
+        </Image>
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -96,5 +97,14 @@ namespace WpfApp1
             myNotifyIcon.HideBalloonTip();
         }
 
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = Startup.UploadPath,
+                UseShellExecute = true,
+                Verb = "open",
+            });
+        }
     }
 }
