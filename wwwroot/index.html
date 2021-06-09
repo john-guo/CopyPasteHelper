@@ -9,7 +9,6 @@
     <script src="jquery.form.min.js"></script>
 </head>
 <body>
-    <p style="margin: 2em;"></p>
     <button id="cpy" style="width:6em;height:6em;margin: 1em;">Copy to PC</button>
     <button id="pst" style="width:6em;height:6em;margin: 1em;">Paste from PC</button>
     <textarea id="txt" rows="20" cols="40"></textarea>
@@ -20,6 +19,17 @@
             <img src="" alt="Image preview..." style="width:auto;height:auto">
         </p>
     </form>
+
+    <p style="margin: 2em;">
+        <a href="/files/">Files</a>
+        <form id="form2" action="/api/save" enctype="multipart/form-data" method="post">
+        <p>
+            <input name="file2" type="file" id="file2" />
+            <input id="btn" type="button" name="btn" value="Submit" />
+        </p>
+        </form>
+    </p>
+
     <script>
         function show(msg) {
             let gui = new dat.GUI({ closeOnTop: true, closed: false });
@@ -100,7 +110,7 @@
                 //    show("Copy to PC OK!");
                 //});
 
-                $('form').ajaxSubmit(data => {
+                $('#form').ajaxSubmit(data => {
                     console.log(`copy ${data}`);
                     show("Copy to PC OK!");
                 });
@@ -108,7 +118,13 @@
             reader.readAsDataURL(file);
         });
 
-        //$('form').ajaxForm();
+        $('#btn').click(() => {
+            $('#form2').ajaxSubmit(() => {
+                show("Upload to PC OK!");
+            });
+            return false;
+        });
+
     </script>
 </body>
 </html>

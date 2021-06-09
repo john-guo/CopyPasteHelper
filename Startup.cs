@@ -17,11 +17,18 @@ using System.IO;
 using Microsoft.AspNetCore.Http.Features;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using Microsoft.Extensions.FileProviders;
 
 namespace WpfApp1
 {
     public class Startup
     {
+        private readonly string UploadPath;
+        public Startup()
+        {
+            UploadPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\files");
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -43,14 +50,19 @@ namespace WpfApp1
             {
                 app.UseDeveloperExceptionPage();
             }
-
             app.UseStaticFiles();
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions()
+            {
+                FileProvider = new PhysicalFileProvider(UploadPath),
+                RequestPath = new PathString("/files")
+            });
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapControllers();
                 endpoints.MapPost("/api/copy", Copy);
                 endpoints.MapPost("/api/copy2", Copy2);
+                endpoints.MapPost("/api/save", Save);
                 endpoints.MapPost("/api/paste", Paste);
             });
         }
@@ -162,6 +174,32 @@ namespace WpfApp1
             });
         }
 
+
+        private async Task Save(HttpContext context)
+        {
+            var form = await context.Request.ReadFormAsync();
+            var file = form.Files[0];
+            var filename = Path.Combine(UploadPath, file.FileName);
+            using (var stream = file.OpenReadStream())
+            using (var fs = new FileStream(filename, FileMode.Create))
+            {
+                byte[] buffer = new byte[file.Length];
+                int n = 0;
+                do
+                {
+                    n = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    if (n > 0)
+                    {
+                        await fs.WriteAsync(buffer, 0, n);
+                    }
+                } while (n != 0);
+            }
+
+            RunAction(async () =>
+            {
+                await (Application.Current.MainWindow as MainWindow).Show("Upload To PC OK!");
+            });
+        }
 
         private async Task Paste(HttpContext context)
         {
