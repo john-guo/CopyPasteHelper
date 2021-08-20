@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="CopyPasteHelper" Height="400" Width="400"
+        Title="CopyPasteHelper" Height="450" Width="400"
         Loaded="Window_Loaded"
         ResizeMode="NoResize"
         WindowStyle="SingleBorderWindow"
@@ -28,10 +28,13 @@
                 </Border>
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
-        <Image x:Name="img">
-            <Image.InputBindings>
-                <MouseBinding MouseAction="LeftDoubleClick" Command="{x:Static ApplicationCommands.Help}"  />
-            </Image.InputBindings>
-        </Image>
+        <StackPanel>
+            <ComboBox x:Name="addresses" Margin="0" ItemsSource="{x:Static local:App.Addresses}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+            <Image x:Name="img">
+                <Image.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{x:Static ApplicationCommands.Help}"  />
+                </Image.InputBindings>
+            </Image>
+        </StackPanel>
     </Grid>
 </Window>

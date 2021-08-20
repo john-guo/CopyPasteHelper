@@ -21,6 +21,7 @@ namespace WpfApp1
     {
         private IHost _host;
         public static string Address;
+        public static string[] Addresses { get; set; }
 
         public App()
         {
@@ -34,9 +35,9 @@ namespace WpfApp1
                     });
                     webBuilder.UseKestrel();
 
-                    var addrs = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
-                    Address = addrs[0];
-                    webBuilder.UseUrls(addrs);
+                    Addresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+                    Address = Addresses[0];
+                    webBuilder.UseUrls(Addresses);
                     webBuilder.UseStartup<Startup>();
                 }).Build();
         }

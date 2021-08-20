@@ -32,15 +32,10 @@ namespace WpfApp1
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var content = App.Address + "index.html";
-            Dictionary<EncodeHintType, object> hints = new Dictionary<EncodeHintType, object>();
-            hints.Add(EncodeHintType.CHARACTER_SET, "UTF-8");
-
-            var bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 200, 200);
-            this.img.Stretch = Stretch.Fill;
-            this.img.Source = toImage(bitMatrix);
-
-            this.imgToolTip.Source = this.img.Source;
+            if (addresses.Items.Count > 0)
+            {
+                addresses.SelectedIndex = 0;
+            }
         }
 
         private BitmapImage toImage(BitMatrix matrix)
@@ -105,6 +100,19 @@ namespace WpfApp1
                 UseShellExecute = true,
                 Verb = "open",
             });
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var content = addresses.SelectedItem + "index.html";
+            Dictionary<EncodeHintType, object> hints = new Dictionary<EncodeHintType, object>();
+            hints.Add(EncodeHintType.CHARACTER_SET, "UTF-8");
+
+            var bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 200, 200, hints);
+            img.Stretch = Stretch.Fill;
+            img.Source = toImage(bitMatrix);
+
+            imgToolTip.Source = img.Source;
         }
     }
 }
