@@ -1,5 +1,5 @@
 # CopyPasteHelper
-A tool copy/paste text between pc and mobile in the same LAN 
+A tool copy/paste text/image or share files between pc and mobile in the same LAN 
 
 ## Build Environment
 .Net Core 3.1
@@ -17,7 +17,9 @@ Bind on the first available none loopback ipv4 device and listen in 6688 port.
 
 4. Choose any browser to open the url.
 
-5. Copy any text into the textarea then press "Copy to PC", the text will be copied to the pc clipboard. (Paste vice versa) 
+5. Copy any text into the textarea (or select any image) then press "Copy to PC", the text will be copied to the pc clipboard. (Paste vice versa)
+
+6. Upload/download any file in the browser. On windows double click the qrcode will open the folder that stores those shared files.  
 
 ## **Warnning**
 
