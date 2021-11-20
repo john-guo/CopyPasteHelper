@@ -135,7 +135,7 @@ namespace WpfApp1
                 switch (parameters.Type)
                 {
                     case 0://text
-                        Clipboard.SetData(DataFormats.Text, parameters.Data);
+                        Clipboard.SetData(DataFormats.UnicodeText, parameters.Data);
                         result = "Text";
                         break;
                     case 1://image
@@ -223,7 +223,7 @@ namespace WpfApp1
                 {
                     result = "Text";
                     parameter.Type = 0;
-                    parameter.Data = (string)ido.GetData(DataFormats.Text);
+                    parameter.Data = (string)ido.GetData(DataFormats.UnicodeText);
                 }
 
                 RunAction(async () =>
