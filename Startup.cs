@@ -152,9 +152,9 @@ namespace WpfApp1
                 }
 
 
-                RunAction(async () =>
+                RunAction(() =>
                 {
-                    await (Application.Current.MainWindow as MainWindow).Show($"{result} Copy To PC OK!");
+                    (Application.Current.MainWindow as MainWindow).Show($"{result} Copy To PC OK!");
                 });
 
                 return data;
@@ -171,9 +171,9 @@ namespace WpfApp1
             {
                 Clipboard.SetData(DataFormats.Bitmap, image);
 
-                RunAction(async () =>
+                RunAction(() =>
                 {
-                    await (Application.Current.MainWindow as MainWindow).Show("Image Copy To PC OK!");
+                    (Application.Current.MainWindow as MainWindow).Show("Image Copy To PC OK!");
                 });
 
                 image.Dispose();
@@ -202,9 +202,9 @@ namespace WpfApp1
                 } while (n != 0);
             }
 
-            RunAction(async () =>
+            RunAction(() =>
             {
-                await (Application.Current.MainWindow as MainWindow).Show("Upload To PC OK!");
+                (Application.Current.MainWindow as MainWindow).Show("Upload To PC OK!");
             });
         }
 
@@ -229,9 +229,9 @@ namespace WpfApp1
                     parameter.Data = (string)ido.GetData(DataFormats.UnicodeText);
                 }
 
-                RunAction(async () =>
+                RunAction(() =>
                 {
-                    await (Application.Current.MainWindow as MainWindow).Show($"{result} Paste From PC OK!");
+                    (Application.Current.MainWindow as MainWindow).Show($"{result} Paste From PC OK!");
                 });
 
                 return parameter;

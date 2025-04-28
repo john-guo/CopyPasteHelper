@@ -85,11 +85,9 @@ namespace WpfApp1
             return bimg;
         }
             
-        public async Task Show(string message)
+        public void Show(string message)
         {
-            myNotifyIcon.ShowBalloonTip("Info", message, Hardcodet.Wpf.TaskbarNotification.BalloonIcon.Info);
-            await Task.Delay(2000);
-            myNotifyIcon.HideBalloonTip();
+            myNotifyIcon.ShowNotification("Info", message, H.NotifyIcon.Core.NotificationIcon.Info);
         }
 
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
