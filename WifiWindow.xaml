@@ -1,0 +1,26 @@
+﻿<Window x:Class="CopyPasteHelper.WifiWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CopyPasteHelper"
+        mc:Ignorable="d"
+        Title="WifiWindow" Height="450" Width="400">
+    <StackPanel>
+        <WrapPanel>
+            <TextBlock>SID:</TextBlock>
+            <TextBox x:Name="tb_sid" Width="80" TextWrapping="Wrap" AcceptsReturn="True" FontSize="14"/>
+            <ComboBox x:Name="cb_type" Width="60" Margin="5,0">
+                <ComboBoxItem IsSelected="True">WPA</ComboBoxItem>
+                <ComboBoxItem>WEP</ComboBoxItem>
+                <ComboBoxItem>WPA2</ComboBoxItem>
+                <ComboBoxItem>WPA3</ComboBoxItem>
+                <ComboBoxItem>nopass</ComboBoxItem>
+            </ComboBox>
+            <TextBlock>Password:</TextBlock>
+            <TextBox x:Name="tb_passwd" Width="80" TextWrapping="Wrap" AcceptsReturn="True" FontSize="14"/>
+            <Button x:Name="ok" Margin="5,0" Click="ok_Click">Gen</Button>
+        </WrapPanel>
+        <Image x:Name="img"/>
+    </StackPanel>
+</Window>

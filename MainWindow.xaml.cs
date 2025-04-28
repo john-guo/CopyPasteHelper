@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CopyPasteHelper;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -103,14 +104,25 @@ namespace WpfApp1
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var content = addresses.SelectedItem + "index.html";
-            Dictionary<EncodeHintType, object> hints = new Dictionary<EncodeHintType, object>();
-            hints.Add(EncodeHintType.CHARACTER_SET, "UTF-8");
-
-            var bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 200, 200, hints);
             img.Stretch = Stretch.Fill;
-            img.Source = toImage(bitMatrix);
+            img.Source = content.ToBarcode(200, 200);
 
             imgToolTip.Source = img.Source;
+        }
+
+        private WifiWindow _wifi = null;
+        private void wifi_Click(object sender, RoutedEventArgs e)
+        {
+            if (_wifi == null || !_wifi.IsVisible)
+            {
+                _wifi = new WifiWindow();
+                _wifi.Owner = this;
+                _wifi.Show();
+            }
+            else
+            {
+                _wifi.Activate();
+            }
         }
     }
 }

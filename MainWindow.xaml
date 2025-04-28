@@ -29,7 +29,10 @@
             </tb:TaskbarIcon.TrayToolTip>
         </tb:TaskbarIcon>
         <StackPanel>
-            <ComboBox x:Name="addresses" Margin="0" ItemsSource="{x:Static local:App.Addresses}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox x:Name="addresses" Width="350" Margin="0" ItemsSource="{x:Static local:App.Addresses}" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+                <Button x:Name="wifi" Margin="5,0" Click="wifi_Click">WIFI</Button>
+            </StackPanel>
             <Image x:Name="img">
                 <Image.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{x:Static ApplicationCommands.Help}"  />
