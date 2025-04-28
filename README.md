@@ -2,7 +2,7 @@
 A tool copy/paste text/image or share files between pc and mobile in the same LAN 
 
 ## Build Environment
-.Net Core 3.1
+.Net 8
 
 ## Specific
 Bind on the first available none loopback ipv4 device and listen in 6688 port.
@@ -27,7 +27,7 @@ Bind on the first available none loopback ipv4 device and listen in 6688 port.
 
 ## 3rd Party Contributions
 
-NotifyIcon WPF .Net Core Version (https://github.com/HavenDV/H.NotifyIcon.WPF)
+H.NotifyIcon ([https://github.com/HavenDV/H.NotifyIcon.WPF](https://github.com/HavenDV/H.NotifyIcon))
 
 ZXing.Net (https://github.com/micjahn/ZXing.Net/)
 
