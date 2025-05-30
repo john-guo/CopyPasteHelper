@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ZXing;
 using ZXing.Common;
+using System.Windows.Threading;
 
 namespace WpfApp1
 {
@@ -26,17 +29,46 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow : Window
     {
+        private DispatcherTimer timer;
+        private string[] Addresses;
+
         public MainWindow()
         {
             InitializeComponent();
+            timer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromSeconds(1),
+            };
+            timer.Tick += Timer_Tick;
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (Addresses == null || Addresses.Length == 0)
+            {
+                Addresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+                if (Addresses.Length > 0)
+                {
+                    addresses.ItemsSource = Addresses;
+                    addresses.SelectedIndex = 0;
+                }
+                return;
+            }
+
+            var currentAddresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+            if (Addresses.SequenceEqual(currentAddresses))
+            {
+                return; // No change in addresses
+            }
+            Addresses = currentAddresses;
+            addresses.ItemsSource = Addresses;
+            addresses.SelectedIndex = 0;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (addresses.Items.Count > 0)
-            {
-                addresses.SelectedIndex = 0;
-            }
+            Timer_Tick(null, null);
+            timer.IsEnabled = true;
         }
 
         private BitmapImage toImage(BitMatrix matrix)
@@ -100,7 +132,14 @@ namespace WpfApp1
                 Verb = "open",
             });
         }
-
+        private IPAddress[] AllUpExternalIPv4Addresses()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.NetworkInterfaceType != NetworkInterfaceType.Loopback && n.OperationalStatus == OperationalStatus.Up)
+                .SelectMany(n => n.GetIPProperties().UnicastAddresses.Select(u => u.Address))
+                .Where(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .ToArray();
+        }
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var content = addresses.SelectedItem + "index.html";
@@ -123,6 +162,15 @@ namespace WpfApp1
             {
                 _wifi.Activate();
             }
+        }
+
+        private void hotspot_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("ms-settings:network-mobilehotspot")
+            {
+                UseShellExecute = true,
+                Verb = "open",
+            });
         }
     }
 }

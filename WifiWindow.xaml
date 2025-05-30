@@ -9,7 +9,7 @@
     <StackPanel>
         <WrapPanel>
             <TextBlock>SID:</TextBlock>
-            <TextBox x:Name="tb_sid" Width="80" TextWrapping="Wrap" AcceptsReturn="True" FontSize="14"/>
+            <TextBox x:Name="tb_sid" Width="80" TextWrapping="NoWrap" AcceptsReturn="True" FontSize="14"/>
             <ComboBox x:Name="cb_type" Width="60" Margin="5,0">
                 <ComboBoxItem IsSelected="True">WPA</ComboBoxItem>
                 <ComboBoxItem>WEP</ComboBoxItem>
@@ -18,7 +18,7 @@
                 <ComboBoxItem>nopass</ComboBoxItem>
             </ComboBox>
             <TextBlock>Password:</TextBlock>
-            <TextBox x:Name="tb_passwd" Width="80" TextWrapping="Wrap" AcceptsReturn="True" FontSize="14"/>
+            <TextBox x:Name="tb_passwd" Width="80" TextWrapping="NoWrap" AcceptsReturn="True" FontSize="14"/>
             <Button x:Name="ok" Margin="5,0" Click="ok_Click">Gen</Button>
         </WrapPanel>
         <Image x:Name="img"/>

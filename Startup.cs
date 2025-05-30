@@ -165,7 +165,22 @@ namespace WpfApp1
         {
             var form = await context.Request.ReadFormAsync();
             var file = form.Files[0];
-            var image = new Bitmap(file.OpenReadStream());
+            var filename = Path.Combine(UploadPath, file.FileName);
+            using (var stream = file.OpenReadStream())
+            using (var fs = new FileStream(filename, FileMode.Create))
+            {
+                byte[] buffer = new byte[file.Length];
+                int n = 0;
+                do
+                {
+                    n = await stream.ReadAsync(buffer);
+                    if (n > 0)
+                    {
+                        await fs.WriteAsync(buffer.AsMemory(0, n));
+                    }
+                } while (n != 0);
+            }
+            var image = new Bitmap(filename);
 
             await STTask(() =>
             {
@@ -194,10 +209,10 @@ namespace WpfApp1
                 int n = 0;
                 do
                 {
-                    n = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    n = await stream.ReadAsync(buffer);
                     if (n > 0)
                     {
-                        await fs.WriteAsync(buffer, 0, n);
+                        await fs.WriteAsync(buffer.AsMemory(0, n));
                     }
                 } while (n != 0);
             }

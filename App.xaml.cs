@@ -20,8 +20,8 @@ namespace WpfApp1
     public partial class App : Application
     {
         private IHost _host;
-        public static string Address;
-        public static string[] Addresses { get; set; }
+        //public static string Address;
+        //public static string[] Addresses { get; set; }
 
         public App()
         {
@@ -30,27 +30,18 @@ namespace WpfApp1
                 {
                     webBuilder.ConfigureKestrel((context, options) =>
                     {
+                        options.ListenAnyIP(6688); // Listen on port 6688 for any IP address
                         // Handle requests up to 500 MB
                         options.Limits.MaxRequestBodySize = 524288000;
                     });
                     webBuilder.UseKestrel();
 
-                    Addresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
-                    Address = Addresses[0];
-                    webBuilder.UseUrls(Addresses);
+                    //Addresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+                    //Address = Addresses[0];
+                    //webBuilder.UseUrls(Addresses);
                     webBuilder.UseStartup<Startup>();
                 }).Build();
         }
-
-        private IPAddress[] AllUpExternalIPv4Addresses()
-        {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.NetworkInterfaceType != NetworkInterfaceType.Loopback && n.OperationalStatus == OperationalStatus.Up)
-                .SelectMany(n => n.GetIPProperties().UnicastAddresses.Select(u => u.Address))
-                .Where(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                .ToArray();
-        }
-
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {

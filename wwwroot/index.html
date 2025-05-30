@@ -7,29 +7,47 @@
     <script src="dat.gui.min.js"></script>
     <script src="jquery-3.6.0.min.js"></script>
     <script src="jquery.form.min.js"></script>
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content:target {
+            display: block;
+        }
+
+    </style>
 </head>
 <body>
-    <button id="cpy" style="width:6em;height:6em;margin: 1em;">Copy to PC</button>
-    <button id="pst" style="width:6em;height:6em;margin: 1em;">Paste from PC</button>
-    <textarea id="txt" rows="20" cols="40"></textarea>
 
-    <form id="form" action="/api/copy2" enctype="multipart/form-data" method="post">
-        <p>
-            <input name="file" type="file" id="file" accept="image/*" />
-            <img src="" alt="Image preview..." style="width:auto;height:auto">
-        </p>
-    </form>
-
-    <p style="margin: 2em;">
-        <a href="/files/">Files</a>
-        <form id="form2" action="/api/save" enctype="multipart/form-data" method="post">
-        <p>
-            <input name="file2" type="file" id="file2" />
-            <input id="btn" type="button" name="btn" value="Submit" />
-        </p>
+    <div class="tabs">
+        <a href="#tab1">Text/Images</a>
+        <a href="#tab2">Files</a>
+    </div>
+      
+    <div id="tab1" class="tab-content">
+        <button id="cpy" style="width:6em;height:6em;margin: 1em;">Copy to PC</button>
+        <button id="pst" style="width:6em;height:6em;margin: 1em;">Paste from PC</button>
+          <textarea id="txt" rows="20" cols="40"></textarea>
+        <form id="form" action="/api/copy2" enctype="multipart/form-data" method="post">
+            <p>
+                <input name="file" type="file" id="file" accept="image/*" />
+                <img src="" alt="Image preview..." width="100" style="width:100px; height: auto">
+            </p>
         </form>
-    </p>
-
+    </div>
+ 
+    <div id="tab2" class="tab-content">
+        <p style="margin: 2em;">
+            <a href="/files/">Download Files</a>
+            <form id="form2" action="/api/save" enctype="multipart/form-data" method="post">
+            <p>
+                <input name="file2" type="file" id="file2" />
+                <input id="btn" type="button" name="btn" value="Upload to PC" />
+            </p>
+            </form>
+        </p>
+    </div>
+      
     <script>
         function show(msg) {
             let gui = new dat.GUI({ closeOnTop: true, closed: false });
