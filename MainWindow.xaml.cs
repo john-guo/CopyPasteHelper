@@ -21,6 +21,7 @@ using System.Windows.Shapes;
 using ZXing;
 using ZXing.Common;
 using System.Windows.Threading;
+using System.Runtime.CompilerServices;
 
 namespace WpfApp1
 {
@@ -30,7 +31,7 @@ namespace WpfApp1
     public partial class MainWindow : Window
     {
         private DispatcherTimer timer;
-        private string[] Addresses;
+        private (string, bool)[] Addresses;
 
         public MainWindow()
         {
@@ -46,22 +47,22 @@ namespace WpfApp1
         {
             if (Addresses == null || Addresses.Length == 0)
             {
-                Addresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+                Addresses = AllUpExternalIPv4Addresses().Select(item => ($"http://{item.Item1}:6688/", item.Item2)).ToArray();
                 if (Addresses.Length > 0)
                 {
-                    addresses.ItemsSource = Addresses;
+                    addresses.ItemsSource = Addresses.Select(item => new { Address = item.Item1, IsBold = item.Item2 }); ;
                     addresses.SelectedIndex = 0;
                 }
                 return;
             }
 
-            var currentAddresses = AllUpExternalIPv4Addresses().Select(ip => $"http://{ip}:6688/").ToArray();
+            var currentAddresses = AllUpExternalIPv4Addresses().Select(item => ($"http://{item.Item1}:6688/", item.Item2)).ToArray();
             if (Addresses.SequenceEqual(currentAddresses))
             {
                 return; // No change in addresses
             }
             Addresses = currentAddresses;
-            addresses.ItemsSource = Addresses;
+            addresses.ItemsSource = Addresses.Select(item => new { Address = item.Item1, IsBold = item.Item2 });
             addresses.SelectedIndex = 0;
         }
 
@@ -132,13 +133,14 @@ namespace WpfApp1
                 Verb = "open",
             });
         }
-        private IPAddress[] AllUpExternalIPv4Addresses()
+        private static (IPAddress,bool)[] AllUpExternalIPv4Addresses()
         {
             return NetworkInterface.GetAllNetworkInterfaces()
                 .Where(n => n.NetworkInterfaceType != NetworkInterfaceType.Loopback && n.OperationalStatus == OperationalStatus.Up)
-                .SelectMany(n => n.GetIPProperties().UnicastAddresses.Select(u => u.Address))
-                .Where(addr => addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                .ToArray();
+                .SelectMany(n => n.GetIPProperties().UnicastAddresses.Select(u => u.Address), (n, addr) => new { n, addr })
+                .Where(item => item.addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .Select(item => (item.addr, item.n.Description.ToLower().Contains("wi-fi direct") ||
+                                        item.n.Description.ToLower().Contains("hosted"))).ToArray();
         }
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

@@ -30,7 +30,24 @@
         </tb:TaskbarIcon>
         <StackPanel>
             <StackPanel Orientation="Horizontal">
-                <ComboBox x:Name="addresses" Width="285" Margin="5,0,0,0" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+                <ComboBox x:Name="addresses" Width="285" Margin="5,0,0,0" SelectionChanged="ComboBox_SelectionChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Address}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Normal"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBold}" Value="True">
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button x:Name="wifi" Margin="5,0" Click="wifi_Click">WIFI</Button>
                 <Button x:Name="hotspot" Margin="0,0" Click="hotspot_Click">HotSpot</Button>
             </StackPanel>
